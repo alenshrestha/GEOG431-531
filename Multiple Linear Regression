@@ -1,0 +1,29 @@
+
+stations = dir('*.csv'); 
+
+q = 1;
+for p = 1:length(stations)
+    p
+  
+    %Open daily surface weather station data
+    wsData = importdata(stations(p).name);
+    
+    X = [ones(size(wsData(:,8))) wsData(:,4:5:6:7)];
+    Y = wsData(:,8);
+    [b,~,~,~,~] = regress(Y,X);
+    [~,~,r,~,~] = regress(Y,X);
+    [~,~,~,~,stats] = regress(Y,X);
+    bval(p,:) = b';
+    stats1(p,:) = stats;
+    predict(:,1) = bval(p,1)+(bval(p,2)*wsData(:,4))+(bval(p,3)*wsData(:,5))+(bval(p,4)*wsData(:,6))+(bval(p,5)*wsData(:,7));
+    
+    wsData(:,11) = predict; %append regression PET to the end of the weather station data
+    
+    csvwrite([stations(p).name(1:end-4) '_PREDICTED PET.csv'], wsData); 
+    
+    q = q+1;
+    
+    
+    clear wsData sub row col lat lon 
+    clc
+end
